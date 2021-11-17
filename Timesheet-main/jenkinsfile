@@ -1,72 +1,47 @@
 pipeline {
 
     agent any
-stages {
-		stage('Checkout GIT') {
+
+
+    stages {
+       stage ('GIT') {
             steps {
-                echo 'Pulling...';
-                git branch: 'master',
-                url: 'https://github.com/AymenOuertani9/TimeSheetProject.git';
+               echo "Getting Project from Git"; 
+                git branch: "master", 
+                    url: "https://github.com/AymenOuertani9/TimeSheetProject.git";
+                 
             }
         }
 
-        stage('Build, Testing'){
-        	steps {
-        		echo 'Building and testing...';
-           		bat """mvn clean install"""
-        	}    
+        stage("Build") {
+            steps {
+                bat "mvn -version"
+                bat "mvn clean package -DskipTests"
+                // sh "mvn clean package -DskipTests" pour une machine linux
+            }
+        }
+       
+        stage ('MVN TEST') {
+            steps {
+                echo "Maven Test JUnit";
+                bat 'mvn test';
+            }
         }
         
-        stage('Sonar'){
+        stage("Sonar") {
             steps {
-            	echo 'Sonar';
-                bat """mvn sonar:sonar"""
+                bat "mvn sonar:sonar"
             }
         }
         
-        stage('Nexus'){
+        stage("DEPLOY") {
             steps {
-            	echo 'Deploying on Nexus...';
-                bat """mvn clean package deploy:deploy-file -DgroupId=tn.esprit -DartifactId=Timesheet -Dversion=0.0.3 -DgeneratePom=true -Dpackaging=jar -DrepositoryId=deploymentRepo -Durl=http://localhost:8081/repository/maven-releases/ -Dfile=target/Timesheet-0.0.3.jar"""
+                bat "mvn clean package deploy:deploy-file -DgroupId=tn.esprit -DartifactId=Timesheet -Dversion=0.0.1 -DgeneratePom=true -Dpackaging=jar -DrepositoryId=deploymentRepo -Durl=http://localhost:8081/repository/maven-releases/ -Dfile=target/Timesheet-0.0.1.jar -Dmaven.test.skip=true"
             }
         }
-
-		stage('Building our image') {
-			steps { 
-				script { 
-					echo 'Building image...';
-					dockerImage = docker.build registry + ":$BUILD_NUMBER"
-				} 
-			}
-		}
-
-		stage('Deploy our image') {
-			steps { 
-				script { 
-					echo 'Deploying image...';
-					docker.withRegistry( '', registryCredential) { dockerImage.push() } 
-					} 
-				}
-		}
-
-		stage('Cleaning up') {
-			steps { 
-				echo 'Cleaning up...';
-				bat "docker rmi $registry:$BUILD_NUMBER" 
-			}
-		}
+       
     }
+   
+  
     
-    post {
-        success {
-            emailext body: 'Project build success', subject: 'Jenkins', to:
-            'aymen.ouertani@esprit.tn'
-        }
-        
-        failure {
-            emailext body: 'Project build failure', subject: 'Jenkins', to:
-            'aymen.ouertani@esprit.tn'
-        }
-    }
-}
 }
