@@ -37,7 +37,7 @@ public class EmployeeTest {
 		String s = "Taille: " + employes.size();
 		l.info(s);
 	}
-
+	
 	@Test
 	public void testAjout() {
 		long i = IEmployeService.getNombreEmployeJPQL();
@@ -49,7 +49,7 @@ public class EmployeeTest {
 		emp = IEmployeService.ajouterEmploye(emp);
 		l.info("Nbr: " + IEmployeService.getNombreEmployeJPQL());
 		assertEquals(i + 1, IEmployeService.getNombreEmployeJPQL());
-		EmployeRepository.delete(emp);
+		//EmployeRepository.delete(emp);
 	}
 	
 	@Test
@@ -61,7 +61,7 @@ public class EmployeeTest {
 		emp = IEmployeService.ajouterEmploye(emp);
 		emp.setPrenom("ahmed");
 		emp = EmployeRepository.save(emp);
-		assertEquals("abbas" ,emp.getPrenom());
+		assertEquals("ahmed" ,emp.getPrenom());
 		EmployeRepository.delete(emp);
 	}
 	
