@@ -75,7 +75,7 @@ public class EmployeeTest {
 		long i = IEmployeService.getNombreEmployeJPQL();
 		EmployeRepository.delete(emp);
 		assertEquals(i - 1, IEmployeService.getNombreEmployeJPQL());
-		//commit pipeline test 22222121222
+		//commit pipeline test 88
 		
 	}
 }
